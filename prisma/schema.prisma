@@ -5,11 +5,104 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects Project[]
+}
+
+model Project {
+  id          Int                 @id @default(autoincrement())
+  title       String
+  description String
+  image       String?
+  githubUrl   String?
+  liveUrl     String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  userId      Int
+  user        User                @relation(fields: [userId], references: [id])
+  technologies ProjectTechnology[]
+}
+
+model Technology {
+  id        Int                 @id @default(autoincrement())
+  name      String              @unique
+  category  String
+  icon      String?
+  projects  ProjectTechnology[]
+}
+
+model ProjectTechnology {
+  projectId     Int
+  technologyId  Int
+
+  project       Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology    Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, technologyId])
+}
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+  company     String
+  position    String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model Education {
+  id          Int      @id @default(autoincrement())
+  institution String
+  degree      String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model Skill {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  level     String?
+  createdAt DateTime @default(now())
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String
+  image       String?
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
 }
